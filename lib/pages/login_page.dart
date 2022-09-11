@@ -18,6 +18,21 @@ class _LoginPageState extends State<LoginPage> {
   String name = "";
   bool changeButton = false;
 
+  final _formKey = GlobalKey<FormState>();
+
+  moveToHome(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        changeButton = true;
+      });
+      await Future.delayed(Duration(seconds: 1));
+      Navigator.pushNamed(context, MyRoutes.homeRoute);
+      setState(() {
+        changeButton = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String? _password;
@@ -29,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
             "assets/images/l1.png",
             fit: BoxFit.cover,
             width: 250.0,
-            height: 150.0,
+            height: 200.0,
           ),
           SizedBox(
             height: 10.0,
@@ -41,101 +56,110 @@ class _LoginPageState extends State<LoginPage> {
           Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 14.0, horizontal: 23.0),
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "enter username",
-                    labelText: "username",
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "enter username",
+                      labelText: "username",
+                    ),
+                    validator: (value) {
+                      if (value != 'aslan') {
+                        return "enter correct username plz";
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      name = value;
+                      setState(() {});
+                    },
                   ),
-                  onChanged: (value) {
-                    name = value;
-                    setState(() {});
-                  },
-                ),
-                // TextFormField(
-                //   obscureText: true,
-                //   decoration: InputDecoration(
-                //     hintText: "enter password",
-                //     labelText: "password",
-                //   ),
-                //   validator: (val) =>
-                //       val!.length < 6 ? 'Password too short.' : null,
-                //   onSaved: (val) => _password = val,
-                //   // obscureText: true,
-                // ),
-                TextFormField(
-                  keyboardType: TextInputType.text,
-                  // controller: _userPasswordController,
-                  obscureText:
-                      !_passwordVisible, //This will obscure text dynamically
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                    // Here is key idea
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        // Based on passwordVisible state choose the icon
-                        _passwordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Theme.of(context).primaryColorDark,
+                  // TextFormField(
+                  //   obscureText: true,
+                  //   decoration: InputDecoration(
+                  //     hintText: "enter password",
+                  //     labelText: "password",
+                  //   ),
+                  //   validator: (val) =>
+                  //       val!.length < 6 ? 'Password too short.' : null,
+                  //   onSaved: (val) => _password = val,
+                  //   // obscureText: true,
+                  // ),
+                  TextFormField(
+                    keyboardType: TextInputType.text,
+                    // controller: _userPasswordController,
+                    obscureText:
+                        !_passwordVisible, //This will obscure text dynamically
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      // Here is key idea
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          // Based on passwordVisible state choose the icon
+                          _passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Theme.of(context).primaryColorDark,
+                        ),
+                        onPressed: () {
+                          // Update the state i.e. toogle the state of passwordVisible variable
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        // Update the state i.e. toogle the state of passwordVisible variable
-                        setState(() {
-                          _passwordVisible = !_passwordVisible;
-                        });
-                      },
                     ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "password cannot be empty";
+                      } else if (value.length < 6) {
+                        return "password must be greater than 6 chars";
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(
-                  height: 40.0,
-                ),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     print('hello login click hua');
-                //     Navigator.pushNamed(context, MyRoutes.homeRoute);
-                //   },
-                //   child: Text('Login'),
-                //   style: TextButton.styleFrom(minimumSize: Size(25, 30)),
-                // ),
-                InkWell(
-                  onTap: () async {
-                    setState(() {
-                      changeButton = true;
-                    });
-                    await Future.delayed(Duration(seconds: 1));
-                    Navigator.pushNamed(context, MyRoutes.homeRoute);
-                  },
-                  child: AnimatedContainer(
-                    duration: Duration(seconds: 2),
-                    width: changeButton ? 50.0 : 150,
-                    height: 50.0,
-                    // color: Colors.purple,
-                    alignment: Alignment.center,
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     print('hello login click hua');
+                  //     Navigator.pushNamed(context, MyRoutes.homeRoute);
+                  //   },
+                  //   child: Text('Login'),
+                  //   style: TextButton.styleFrom(minimumSize: Size(25, 30)),
+                  // ),
+                  Material(
+                    color: Colors.deepPurple,
+                    borderRadius: BorderRadius.circular(changeButton ? 20 : 7),
+                    child: InkWell(
+                      splashColor: Colors.red,
+                      onTap: () => moveToHome(context),
+                      child: AnimatedContainer(
+                        duration: Duration(seconds: 2),
+                        width: changeButton ? 50.0 : 150,
+                        height: 50.0,
+                        // color: Colors.purple,
+                        alignment: Alignment.center,
 
-                    child: changeButton
-                        ? Icon(Icons.done)
-                        : Text(
-                            'login',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 17,
-                            ),
-                          ),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 68, 29, 75),
-                      shape:
-                          changeButton ? BoxShape.circle : BoxShape.rectangle,
-                      //borderRadius:
-                      // BorderRadius.circular(changeButton ? 20 : 7)),
+                        child: changeButton
+                            ? Icon(Icons.done)
+                            : Text(
+                                'login',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                ),
+                              ),
+                      ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           )
         ],
